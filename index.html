@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot || Rakesh</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #222831;
+        }
+
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: #101038e2 0px 7px 29px 0px;
+            background: #31363F;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #edf1f3;
+        }
+
+        .chat {
+            height: 400px;
+            overflow-y: scroll;
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px solid #545250;
+            border-radius: 5px;
+            background: #222831;
+            color: white;
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .user {
+            justify-content: flex-end;
+        }
+
+        .bot {
+            justify-content: flex-start;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .user .avatar {
+            order: 2;
+            background: url("avatar.png");
+            background-size: cover;
+        }
+
+        .bot .avatar {
+            order: 0;
+            background: url("bot.png");
+            background-size: cover;
+        }
+
+        .text {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            color: white;
+        }
+
+        .user .text {
+            background: #4a4d52;
+        }
+
+        .bot .text {
+            background: #8c8c8e;
+        }
+
+        .input {
+            position: relative;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbcbce;
+            border-radius: 5px;
+            outline: none;
+            font-size: 20px;
+        }
+
+        .input:focus {
+            border-color: #8296d0;
+            color: #1e1f1f;
+        }
+
+        .button {
+            position: absolute;
+            width: 67px;
+            height: 47px;
+            border: none;
+            padding: 1px;
+            background: #000000;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: .01rem;
+            margin-left: -4.1rem;
+            outline: none;
+        }
+
+        button i {
+            font-size: 3rem;
+        }
+
+        .button:hover {
+            color: black;
+            background-color: gray;
+        }
+
+        .chat::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .chat::-webkit-scrollbar-thumb {
+            background: #bcbdc0;
+            border-radius: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h1>Let's Chat</h1>
+        </div>
+
+        <!-- Chat box where messages will appear -->
+        <div class="chat" id="chat"></div>
+
+        <!-- Input field and button in a flex container -->
+        <div class="input-button-container">
+            <input type="text" class="input" id="input" placeholder="Enter your message" />
+            <button class="button" id="button">Send</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Load the user's avatar from localStorage
+        let userAvatar = localStorage.getItem('userAvatar');
+
+        // Display the user message on the chat
+        function displayUserMessage(message) {
+            let chat = document.getElementById("chat");
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user");
+
+            // Create user avatar with the selected image
+            let userAvatarDiv = document.createElement("div");
+            userAvatarDiv.classList.add("avatar");
+
+            if (userAvatar) {
+                userAvatarDiv.style.backgroundImage = `url(${userAvatar})`;
+            } else {
+                userAvatarDiv.style.backgroundImage = "url('avatar.png')"; // Fallback if no avatar is set
+            }
+
+            userAvatarDiv.style.backgroundSize = "cover";
+
+            let userText = document.createElement("div");
+            userText.classList.add("text");
+            userText.innerHTML = message;
+
+            userMessage.appendChild(userText);
+            userMessage.appendChild(userAvatarDiv);
+
+            chat.appendChild(userMessage);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // Display the bot message on the chat
+        function displayBotMessage(message) {
+            let chat = document.getElementById("chat");
+            let botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot");
+
+            let botAvatarDiv = document.createElement("div");
+            botAvatarDiv.classList.add("avatar");
+            botAvatarDiv.style.backgroundImage = "url('bot.png')";
+            botAvatarDiv.style.backgroundSize = "cover";
+
+            let botText = document.createElement("div");
+            botText.classList.add("text");
+            botText.innerHTML = message;
+
+            botMessage.appendChild(botAvatarDiv);
+            botMessage.appendChild(botText);
+
+            chat.appendChild(botMessage);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // Function to interact with GPT-3 using Axios and GPT API
+        async function generateAnswer(input) {
+            let output = "Loading..."; // Default loading message
+
+            try {
+                const response = await axios({
+                    url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyABUgZYGYurUnWi_9aoXR0Uyevo36ssyQY`,
+                    method: "post",
+                    data: {
+                        contents: [{ parts: [{ text: input }] }],
+                    },
+                });
+
+                output = response.data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.log(error);
+                output = "Something went wrong. Try again.";
+            }
+
+            return output;
+        }
+
+        // Send the user message and get the bot response
+        async function sendMessage() {
+            let input=document.getElementById("input").value;
+            
+            let input3=input4+input;
+            if (input) {
+                displayUserMessage(input);
+
+                let output = await generateAnswer(input3); // Get GPT response
+                input3=input3+output;
+                setTimeout(function() {
+                    displayBotMessage(output);
+                }, 1000);
+
+                document.getElementById("input").value = "";
+            }
+        }
+        
+        let input4="You are an AI tutor using the Socratic method to help students learn about {topic}. Give me only questions .only one question at a time and important matter only dont give extra informationRemember to refer to our previous conversation when formulating your questions. Keep track of the topics we've discussed and use that information to guide our conversation."+
+        " a student enters a topic, guide them by asking probing questions that encourage critical thinking and correct me if I'm wrong. Acknowledge me if my answer is correct or not based on context and if I'm wrong, tell me that I'm wrong and give the correct answer in a full sentence without including any other extra matter."
+        +"Avoid directly providing answers. Instead, lead the student to discover the answers themselves through a series of thought-provoking questions. Begin by asking what they already know about {topic} and build from there, encouraging them to think deeply and articulate their thoughts."
+        // Add a click event listener to the button
+        document.getElementById("button").addEventListener("click", sendMessage);
+
+        // Add a keypress event listener to the input
+        document.getElementById("input").addEventListener("keypress", function(event) {
+            if (event.keyCode == 13) {
+                sendMessage();
+            }
+        });
+    </script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Load the user's avatar from localStorage
+    let userAvatar = localStorage.getItem('userAvatar');
+
+    // Initialize conversation state
+    let conversationState = {
+        topic: '',
+        history: [] // To store the history of questions and responses
+    };
+
+    // Display the user message on the chat
+    function displayUserMessage(message) {
+        let chat = document.getElementById("chat");
+        let userMessage = document.createElement("div");
+        userMessage.classList.add("message", "user");
+
+        // Create user avatar with the selected image
+        let userAvatarDiv = document.createElement("div");
+        userAvatarDiv.classList.add("avatar");
+
+        if (userAvatar) {
+            userAvatarDiv.style.backgroundImage = `url(${userAvatar})`;
+        } else {
+            userAvatarDiv.style.backgroundImage = "url('avatar.png')"; // Fallback if no avatar is set
+        }
+
+        userAvatarDiv.style.backgroundSize = "cover";
+
+        let userText = document.createElement("div");
+        userText.classList.add("text");
+        userText.innerHTML = message;
+
+        userMessage.appendChild(userText);
+        userMessage.appendChild(userAvatarDiv);
+
+        chat.appendChild(userMessage);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Display the bot message on the chat
+    function displayBotMessage(message) {
+        let chat = document.getElementById("chat");
+        let botMessage = document.createElement("div");
+        botMessage.classList.add("message", "bot");
+
+        let botAvatarDiv = document.createElement("div");
+        botAvatarDiv.classList.add("avatar");
+        botAvatarDiv.style.backgroundImage = "url('bot.png')";
+        botAvatarDiv.style.backgroundSize = "cover";
+
+        let botText = document.createElement("div");
+        botText.classList.add("text");
+        botText.innerHTML = message;
+
+        botMessage.appendChild(botAvatarDiv);
+        botMessage.appendChild(botText);
+
+        chat.appendChild(botMessage);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Function to interact with the API
+    async function generateAnswer(input) {
+        let output = "Loading..."; // Default loading message
+
+        try {
+            const response = await axios({
+                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyABUgZYGYurUnWi_9aoXR0Uyevo36ssyQY`,
+                method: "post",
+                data: {
+                    contents: [{ parts: [{ text: input }] }],
+                },
+            });
+
+            output = response.data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            console.log(error);
+            output = "Something went wrong. Try again.";
+        }
+
+        return output;
+    }
+
+    // Send the user message and get the bot response
+    async function sendMessage() {
+        let input = document.getElementById("input").value;
+        
+        if (input) {
+            displayUserMessage(input);
+            conversationState.history.push({ role: 'user', content: input });
+
+            // Check if the topic is set; if not, set it to the user's first message
+            if (!conversationState.topic) {
+                conversationState.topic = input; // First input is the topic
+                let initialQuestion = `What do you know about ${conversationState.topic}?`;
+                conversationState.history.push({ role: 'assistant', content: initialQuestion });
+                displayBotMessage(initialQuestion);
+                document.getElementById("input").value = ""; // Clear input after setting topic
+                return; // End function here to prevent sending the topic to the API
+            }
+
+            // If the topic is set, generate the answer
+            let output = await generateAnswer(constructPrompt()); // Get GPT response
+            conversationState.history.push({ role: 'assistant', content: output });
+
+            setTimeout(function() {
+                displayBotMessage(output);
+            }, 1000);
+
+            document.getElementById("input").value = ""; // Clear input after sending message
+        }
+    }
+
+    // Construct the prompt using conversation history
+    function constructPrompt() {
+        let promptBase = `You are an AI tutor using the Socratic method to help students learn about ${conversationState.topic}. Give the only question no need of extra matter also dont again print the previoud prompts also dont repeat same type of questions
+        if he tells i dont know or wrong answer give the answer for that question in next response along with next question
+        Also ask the questions from  basic level and drive him to understand the topic such if he doesnt jnow about topic introduce it with your questions Keep track of our conversation and use the following history to guide your responses: `;
+
+        conversationState.history.forEach(entry => {
+            promptBase += `${entry.role}: ${entry.content}\n`;
+        });
+
+        promptBase += "Ask one question at a time, and remember to validate the user's answers based on previous context.";
+        
+        return promptBase;
+    }
+
+    // Add a click event listener to the button
+    document.getElementById("button").addEventListener("click", sendMessage);
+
+    // Add a keypress event listener to the input
+    document.getElementById("input").addEventListener("keypress", function(event) {
+        if (event.keyCode == 13) {
+            sendMessage();
+        }
+    });
+
+    // Example prompt to guide the user
+    displayBotMessage("Welcome! Please enter a topic you'd like to learn about.");
+</script> -->
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let userAvatar = localStorage.getItem('userAvatar');
+        let conversationContext = {
+            topic: 'general topics', // Set the initial topic (can be dynamically changed based on user input)
+            history: [] // Keeps track of the conversation history for context
+        };
+
+        function displayUserMessage(message) {
+            let chat = document.getElementById("chat");
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user");
+
+            let userAvatarDiv = document.createElement("div");
+            userAvatarDiv.classList.add("avatar");
+            if (userAvatar) {
+                //userAvatarDiv.style.backgroundImage = url(${userAvatar});
+            } else {
+                userAvatarDiv.style.backgroundImage = "url('avatar.png')";
+            }
+            userAvatarDiv.style.backgroundSize = "cover";
+
+            let userText = document.createElement("div");
+            userText.classList.add("text");
+            userText.innerHTML = message;
+
+            userMessage.appendChild(userAvatarDiv);
+            userMessage.appendChild(userText);
+            chat.appendChild(userMessage);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function displayBotMessage(message) {
+            let chat = document.getElementById("chat");
+            let botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot");
+
+            let botAvatarDiv = document.createElement("div");
+            botAvatarDiv.classList.add("avatar");
+            botAvatarDiv.style.backgroundImage = "url('bot.png')";
+            botAvatarDiv.style.backgroundSize = "cover";
+
+            let botText = document.createElement("div");
+            botText.classList.add("text");
+            botText.innerHTML = message;
+
+            botMessage.appendChild(botAvatarDiv);
+            botMessage.appendChild(botText);
+            chat.appendChild(botMessage);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function generateResponse(input) {
+            let output = "Loading...";
+            try {
+                const response = await axios({
+                    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyABUgZYGYurUnWi_9aoXR0Uyevo36ssyQY",
+                    method: "post",
+                    data: {
+                        contents: [{ parts: [{ text: input }] }],
+                    },
+                });
+                output = response.data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.log(error);
+                output = "Something went wrong. Try again.";
+            }
+            return output;
+        }
+
+        async function sendMessage() {
+            let input = document.getElementById("input").value;
+            if (input) {
+                displayUserMessage(input);
+                conversationContext.history.push({ userMessage: input });
+
+                let structuredPrompt = `
+                You are an AI tutor using the Socratic method to help students learn about ${conversationContext.topic}. 
+                Only give one question at a time, and only ask questions that build on what the student already knows.
+                Acknowledge if their answer is correct based on the topic and validate against the context. If the response is incorrect, guide them to the right answer without providing it directly.
+                Current Context: ${conversationContext.history.map(entry => entry.userMessage).join(" ")}
+                The student just responded with: "${input}". Validate and continue the conversation based on the Socratic method.
+                `;
+
+                let output = await generateResponse(structuredPrompt);
+                conversationContext.history.push({ botMessage: output });
+
+                setTimeout(function() {
+                    displayBotMessage(output);
+                }, 1000);
+
+                document.getElementById("input").value = "";
+            }
+        }
+
+        document.getElementById("button").addEventListener("click", sendMessage);
+        document.getElementById("input").addEventListener("keypress", function(event) {
+            if (event.keyCode == 13) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
