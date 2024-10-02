@@ -107,17 +107,17 @@
 
         .button {
             position: absolute;
-            width: 67px;
+            width: 90px;
             height: 47px;
             border: none;
-            padding: 1px;
+            padding: 20px;
             background: #000000;
             color: white;
             font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             margin-top: .01rem;
-            margin-left: -4.1rem;
+            margin-left: 30rem;
             outline: none;
         }
 
@@ -151,10 +151,14 @@
         <div class="chat" id="chat"></div>
 
         <!-- Input field and button in a flex container -->
-        <div class="input-button-container">
-            <input type="text" class="input" id="input" placeholder="Enter your message" />
-            <button class="button" id="button">Send</button>
+        <div class="input-button-container" style="display: flex; align-items: center; width: 100%; padding: 5px;">
+            <textarea class="input" name="text" id="input" rows="1" placeholder="Enter your message" 
+                      style="resize: none; width: calc(100% - 90px); margin-right: 10px; padding: 5px;"></textarea>
+            <button class="button" id="button" style="padding: 5px 15px; height: 40px;">Send</button>
         </div>
+        
+        
+        
     </div>
 
     <!-- JavaScript -->
